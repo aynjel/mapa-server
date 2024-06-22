@@ -1,0 +1,18 @@
+meta {
+  name: POST Sign Up User
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{api_url}}/users/signup
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "kobeortega76@gmail.com",
+    "password": "kobeortega"
+  }
+}

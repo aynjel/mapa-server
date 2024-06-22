@@ -1,0 +1,26 @@
+meta {
+  name: POST Upload Avatar
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{api_url}}/users/avatars
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NzY1OTMzYzEzODI1NzdmYWY2Y2YzZiIsImlhdCI6MTcxOTAzMjEyNSwiZXhwIjoxNzE5MTE0OTI1fQ.W0990cjzHgtykP6Y3eK8ymSPN1pZNVzFQxO9SWd8GbE
+}
+
+body:json {
+  {
+    "email": "kobeortega76@gmail.com",
+    "password": "kobeortega"
+  }
+}
+
+body:multipart-form {
+  avatar: @file(C:\Users\ANGGI\OneDrive\Pictures\Angel_Niño_Ortega_24June2024_Cebu.jpg)
+}

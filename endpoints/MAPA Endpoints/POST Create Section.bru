@@ -1,0 +1,22 @@
+meta {
+  name: POST Create Section
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{api_url}}/sections
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NzY2MWY4YTE0N2M3NWNjOTAxN2Q2ZSIsImlhdCI6MTcxOTA1MDczOSwiZXhwIjoxNzE5MTMzNTM5fQ.JW7uj_-QtIyu4Mox8boeGqZ_0vekeJFPHNmUWc77Reg
+}
+
+body:json {
+  {
+    "title": "Section 1",
+    "description": "This is section 1"
+  }
+}

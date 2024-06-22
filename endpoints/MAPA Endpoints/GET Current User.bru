@@ -1,0 +1,15 @@
+meta {
+  name: GET Current User
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{api_url}}/users/current
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NzZiMDdiNGZiNWQyOGVkNmRjZWFhNCIsImlhdCI6MTcxOTA1NDQ2NCwiZXhwIjoxNzE5MTM3MjY0fQ.YYLgujsk49T6bsxUPYeg43vNukZI5RpnnuYkhn10KYY
+}

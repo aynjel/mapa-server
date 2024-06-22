@@ -1,0 +1,31 @@
+meta {
+  name: POST Create Post
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{api_url}}/posts
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NzZiMDdiNGZiNWQyOGVkNmRjZWFhNCIsImlhdCI6MTcxOTA1NDQ2NCwiZXhwIjoxNzE5MTM3MjY0fQ.YYLgujsk49T6bsxUPYeg43vNukZI5RpnnuYkhn10KYY
+}
+
+body:json {
+  {
+    "title": "kobeortega76@gmail.com",
+    "description": "kobeortega",
+    "content": "kobeortega",
+    "description": "kobeortega"
+  }
+}
+
+body:multipart-form {
+  title: Announcemnt 1
+  description: This is announcemnt 1
+  content: @file(C:\Users\ANGGI\Downloads\Evaluation COMPUTER LABORATORY MANAGEMENT AND MAINTENANCE SYSTEM.pdf)
+  section: 6676a1fad69189cf0aa23193
+}
