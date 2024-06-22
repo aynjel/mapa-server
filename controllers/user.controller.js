@@ -20,7 +20,7 @@ const { SECRET_KEY, PORT } = process.env;
 // check if the app is running in production or development
 const EmailEndpoint =
   process.env.NODE_ENV === "production"
-    ? `https://goit-nodejs-hw-06.herokuapp.com/api/users/verify`
+    ? `https://mapa-server.onrender.com/api/users/verify`
     : `http://localhost:${PORT}/api/users/verify`;
 
 const signupUser = async (req, res) => {
