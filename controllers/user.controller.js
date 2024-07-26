@@ -7,24 +7,29 @@ import path from "path";
 import fs from "fs/promises";
 import { User } from "../models/user.model.js";
 import {
-  emailValidation,
+  // emailValidation,
   signupValidation,
+  signinValidation,
   subscriptionValidation,
 } from "../helpers/validation.js";
 import { httpError } from "../helpers/httpError.js";
-import { v4 as uuid4 } from "uuid";
-import { sendEmail } from "../helpers/sendEmail.js";
+// import { v4 as uuid4 } from "uuid";
+// import { sendEmail } from "../helpers/sendEmail.js";
 
-const { SECRET_KEY, PORT } = process.env;
+const { SECRET_KEY } = process.env;
+// const { SECRET_KEY, PORT, NODE_ENV } = process.env;
 
 // check if the app is running in production or development
-const EmailEndpoint =
-  process.env.NODE_ENV === "production"
-    ? `https://mapa-server.onrender.com/api/users/verify`
-    : `http://localhost:${PORT}/api/users/verify`;
+// const PROD_URL = "https://mapa-server.onrender.com";
+// const LOCAL_URL = `http://localhost:${PORT}`;
+
+// const EmailEndpoint =
+//   NODE_ENV === "production"
+//     ? `${PROD_URL}/api/users/verify`
+//     : `${LOCAL_URL}/api/users/verify`;
 
 const signupUser = async (req, res) => {
-  const { email, password, role = "student" } = req.body;
+  const { name, email, password, role = "student" } = req.body;
 
   //  Registration validation error
   const { error } = signupValidation.validate(req.body);
@@ -44,45 +49,48 @@ const signupUser = async (req, res) => {
   const avatarURL = gravatar.url(email, { s: "250" }, true);
 
   // Create a verificationToken for the user
-  const verificationToken = uuid4();
+  // const verificationToken = uuid4();
 
   // Create a verificationTokenWithExpiry for the user for 1 minute
-  const verificationTokenWithExpiry = `${verificationToken}T${
-    new Date().getTime() + 1000 * 60 * 60
-  }`;
+  // const verificationTokenWithExpiry = `${verificationToken}T${
+  //   new Date().getTime() + 1000 * 60 * 60
+  // }`;
 
   const newUser = await User.create({
+    name,
     email,
     password: hashPassword,
     avatarURL,
     role,
-    verificationToken: verificationTokenWithExpiry,
+    // verificationToken: verificationTokenWithExpiry,
   });
 
   // Send an email to the user's mail and specify a link to verify the email (/users/verify/:verificationToken) in the message
-  await sendEmail({
-    to: email,
-    subject: "Action Required: Verify Your Email",
-    html: `
-      <h1>Welcome to our service</h1>
-      <p>
-        To complete the registration process and have access to all the features of our service, please click the link below to verify your email address:
-      </p>
-      <p>
-       The link will be active for 1 hour.
-      </p>
-      <a style="display: block; padding: 10px; background-color: #4CAF50; color: white; text-align: center; text-decoration: none;" href="${EmailEndpoint}/${verificationTokenWithExpiry}">Verify Email</a>
-    `,
-  });
+  // await sendEmail({
+  //   to: email,
+  //   subject: "Action Required: Verify Your Email",
+  //   html: `
+  //     <h1>Welcome to our service</h1>
+  //     <p>
+  //       To complete the registration process and have access to all the features of our service, please click the link below to verify your email address:
+  //     </p>
+  //     <p>
+  //      The link will be active for 1 hour.
+  //     </p>
+  //     <a style="display: block; padding: 10px; background-color: #4CAF50; color: white; text-align: center; text-decoration: none;" href="${EmailEndpoint}/${verificationTokenWithExpiry}">Verify Email</a>
+  //   `,
+  // });
 
   // Registration success response
   res.status(201).json({
-    user: {
+    message: "Registration successful",
+    data: {
+      name: newUser.name,
       email: newUser.email,
       subscription: newUser.subscription,
       avatarURL: newUser.avatarURL,
       role: newUser.role,
-      verificationToken: newUser.verificationToken,
+      // verificationToken: newUser.verificationToken,
     },
   });
 };
@@ -91,7 +99,7 @@ const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   //  Login validation error
-  const { error } = signupValidation.validate(req.body);
+  const { error } = signinValidation.validate(req.body);
   if (error) {
     throw httpError(401, error.message);
   }
@@ -113,12 +121,10 @@ const loginUser = async (req, res) => {
 
   await User.findByIdAndUpdate(user._id, { token });
 
-  //   Login success response
   res.status(200).json({
-    token: token,
-    user: {
-      email: user.email,
-      subscription: user.subscription,
+    message: "Login successful",
+    data: {
+      token,
     },
   });
 };
@@ -134,11 +140,17 @@ const logoutUser = async (req, res) => {
 };
 
 const getCurrentUsers = async (req, res) => {
-  const { email, subscription } = req.user;
+  const { name, email, subscription, role, avatarURL } = req.user;
 
   res.json({
-    email,
-    subscription,
+    message: "Data Fetched",
+    data: {
+      name,
+      email,
+      subscription,
+      role,
+      avatarURL,
+    },
   });
 };
 
@@ -181,83 +193,83 @@ const updateAvatar = async (req, res) => {
   res.status(200).json({ avatarURL });
 };
 
-const verifyEmail = async (req, res) => {
-  const { verificationTokenWithExpiry } = req.params;
-  // eslint-disable-next-line no-unused-vars
-  const [token, expiry] = verificationTokenWithExpiry.split("T");
-  const currentTime = new Date().getTime();
+// const verifyEmail = async (req, res) => {
+//   const { verificationTokenWithExpiry } = req.params;
+//   // eslint-disable-next-line no-unused-vars
+//   const [token, expiry] = verificationTokenWithExpiry.split("T");
+//   const currentTime = new Date().getTime();
 
-  if (currentTime > Number(expiry)) {
-    throw httpError(400, "Verification link has expired");
-  }
+//   if (currentTime > Number(expiry)) {
+//     throw httpError(400, "Verification link has expired");
+//   }
 
-  const user = await User.findOne({
-    verificationToken: verificationTokenWithExpiry,
-  });
+//   const user = await User.findOne({
+//     verificationToken: verificationTokenWithExpiry,
+//   });
 
-  if (!user) {
-    throw httpError(404, "User not found");
-  }
+//   if (!user) {
+//     throw httpError(404, "User not found");
+//   }
 
-  await User.findByIdAndUpdate(user._id, {
-    verify: true,
-    verificationToken: null,
-  });
+//   await User.findByIdAndUpdate(user._id, {
+//     verify: true,
+//     verificationToken: null,
+//   });
 
-  // Verification success response
-  res.json({
-    message: "Verification successful",
-  });
-};
+//   // Verification success response
+//   res.json({
+//     message: "Verification successful",
+//   });
+// };
 
-const resendVerifyEmail = async (req, res) => {
-  const { email } = req.body;
+// const resendVerifyEmail = async (req, res) => {
+//   const { email } = req.body;
 
-  const { error } = emailValidation.validate(req.body);
+//   const { error } = emailValidation.validate(req.body);
 
-  if (error) {
-    throw httpError(400, error.message);
-  }
+//   if (error) {
+//     throw httpError(400, error.message);
+//   }
 
-  const user = await User.findOne({ email });
+//   const user = await User.findOne({ email });
 
-  if (!user) {
-    throw httpError(404, "User not found");
-  }
+//   if (!user) {
+//     throw httpError(404, "User not found");
+//   }
 
-  if (user.verify) {
-    throw httpError(400, "Verification has already been passed");
-  }
+//   if (user.verify) {
+//     throw httpError(400, "Verification has already been passed");
+//   }
 
-  const verificationToken = uuid4();
-  const verificationTokenWithExpiry = `${verificationToken}T${
-    new Date().getTime() + 1000 * 60 * 60
-  }`;
+//   const verificationToken = uuid4();
+//   const verificationTokenWithExpiry = `${verificationToken}T${
+//     new Date().getTime() + 1000 * 60 * 60
+//   }`;
 
-  await User.findByIdAndUpdate(user._id, {
-    verificationToken: verificationTokenWithExpiry,
-  });
+//   await User.findByIdAndUpdate(user._id, {
+//     verificationToken: verificationTokenWithExpiry,
+//   });
 
-  await sendEmail({
-    to: email,
-    subject: "Action Required: Verify Your Email",
-    html: `
-      <h1>Welcome to our service</h1>
-      <p>
-        To complete the registration process and have access to all the features of our service, please click the link below to verify your email address:
-      </p>
-      <p>
-       The link will be active for 1 hour.
-      </p>
-      <a style="display: block; padding: 10px; background-color: #4CAF50; color: white; text-align: center; text-decoration: none;" href="${EmailEndpoint}/${verificationTokenWithExpiry}">Verify Email</a>
-    `,
-  });
+//   await sendEmail({
+//     to: email,
+//     subject: "Action Required: Verify Your Email",
+//     html: `
+//       <h1>Welcome to our service</h1>
+//       <p>
+//         To complete the registration process and have access to all the features of our service, please click the link below to verify your email address:
+//       </p>
+//       <p>
+//        The link will be active for 1 hour.
+//       </p>
+//       <a style="display: block; padding: 10px; background-color: #4CAF50; color: white; text-align: center; text-decoration: none;" href="${EmailEndpoint}/${verificationTokenWithExpiry}">Verify Email</a>
+//     `,
+//   });
 
-  // Resend verification success response
-  res.json({
-    message: "Verification email sent",
-  });
-};
+//   // Resend verification success response
+//   res.json({
+//     message: "Verification email sent",
+//   });
+// };
 
 export {
   signupUser,
@@ -266,6 +278,6 @@ export {
   getCurrentUsers,
   updateUserSubscription,
   updateAvatar,
-  verifyEmail,
-  resendVerifyEmail,
+  // verifyEmail,
+  // resendVerifyEmail,
 };

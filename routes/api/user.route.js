@@ -7,8 +7,8 @@ import {
   getCurrentUsers,
   updateUserSubscription,
   updateAvatar,
-  verifyEmail,
-  resendVerifyEmail,
+  // verifyEmail,
+  // resendVerifyEmail,
 } from "../../controllers/user.controller.js";
 import { authenticateToken } from "../../middlewares/authenticateToken.js";
 import { upload } from "../../middlewares/upload.js";
@@ -52,13 +52,13 @@ router.patch("/", authenticateToken, ctrlWrapper(updateUserSubscription));
 router.patch("/avatars", authenticateToken, upload.single("avatar"), ctrlWrapper(updateAvatar));
 
 /* GET: // http://localhost:3000/api/users/verify/:verificationTokenWithExpiry */
-router.get("/verify/:verificationTokenWithExpiry", ctrlWrapper(verifyEmail));
+// router.get("/verify/:verificationTokenWithExpiry", ctrlWrapper(verifyEmail));
 
 /* POST: // http://localhost:3000/api/users/verify 
 {
   "email": "example@example.com",
 }
 */
-router.post("/verify", authenticateToken, ctrlWrapper(resendVerifyEmail));
+// router.post("/verify", authenticateToken, ctrlWrapper(resendVerifyEmail));
 
 export { router };

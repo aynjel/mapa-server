@@ -18,7 +18,11 @@ const transport = nodemailer.createTransport(nodemailerConfig);
 
 const sendEmail = async (data) => {
   const email = { ...data, from: GMAIL_EMAIL };
-  await transport.sendMail(email);
+  try {
+    await transport.sendMail(email);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export { sendEmail };
