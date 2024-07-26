@@ -5,13 +5,13 @@ meta {
 }
 
 post {
-  url: {{api_url}}/posts
+  url: {{api_url}}/posts/
   body: multipartForm
   auth: none
 }
 
 headers {
-  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NzZiMDdiNGZiNWQyOGVkNmRjZWFhNCIsImlhdCI6MTcxOTA1NDQ2NCwiZXhwIjoxNzE5MTM3MjY0fQ.YYLgujsk49T6bsxUPYeg43vNukZI5RpnnuYkhn10KYY
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NzZjYzUyNDEyODQwZDNhYzdjODljMyIsImlhdCI6MTcxOTA2MzMxOCwiZXhwIjoxNzE5MTQ2MTE4fQ.9P4o1oQeR3av6kibJqHuiKB-IHTTYXrglZaO2tyHoEA
 }
 
 body:json {
@@ -26,6 +26,6 @@ body:json {
 body:multipart-form {
   title: Announcemnt 1
   description: This is announcemnt 1
-  content: @file(C:\Users\ANGGI\Downloads\Evaluation COMPUTER LABORATORY MANAGEMENT AND MAINTENANCE SYSTEM.pdf)
-  section: 6676a1fad69189cf0aa23193
+  content: @file(C:\Users\ANGGI\Downloads\test.pdf)
+  section: 6676cced412840d3ac7c89cc
 }
