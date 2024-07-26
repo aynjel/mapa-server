@@ -84,7 +84,8 @@ const signupUser = async (req, res) => {
   // Registration success response
   res.status(201).json({
     message: "Registration successful",
-    user: {
+    data: {
+      name: newUser.name,
       email: newUser.email,
       subscription: newUser.subscription,
       avatarURL: newUser.avatarURL,
@@ -122,7 +123,9 @@ const loginUser = async (req, res) => {
 
   res.status(200).json({
     message: "Login successful",
-    token,
+    data: {
+      token,
+    },
   });
 };
 
@@ -137,13 +140,17 @@ const logoutUser = async (req, res) => {
 };
 
 const getCurrentUsers = async (req, res) => {
-  const { email, subscription, role, avatarURL } = req.user;
+  const { name, email, subscription, role, avatarURL } = req.user;
 
   res.json({
-    email,
-    subscription,
-    role,
-    avatarURL,
+    message: "Data Fetched",
+    data: {
+      name,
+      email,
+      subscription,
+      role,
+      avatarURL,
+    },
   });
 };
 
