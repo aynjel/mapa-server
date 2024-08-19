@@ -1,17 +1,17 @@
 meta {
   name: POST Create Post
   type: http
-  seq: 5
+  seq: 11
 }
 
 post {
-  url: {{api_url}}/posts/
+  url: {{api_url}}/posts/create/section-1-012307128683813295
   body: multipartForm
   auth: none
 }
 
 headers {
-  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2OTYxYjYyYTdkNzMwNGNjYjZkZmJjMiIsImlhdCI6MTcyMTExMzQ0NCwiZXhwIjoxNzIxMTk2MjQ0fQ.Yb_XK1PYw9NzRmMwKBTz4Vz-mTxXJP0OAFW0yV9NM_A
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YWVlZDA3NTI4Nzg2Mzk3NzcyNGRmYSIsImlhdCI6MTcyMjc0MDA3MCwiZXhwIjoxNzIyODIyODcwfQ.fWb6kISnAJTdllYxzb_HdLvx5uMmyMceOVOVJX3rHoI
 }
 
 body:json {
@@ -26,6 +26,5 @@ body:json {
 body:multipart-form {
   title: Announcemnt 1
   description: This is announcemnt 1
-  content: @file(C:\Users\angel.ni.o.ortega\Downloads\signature.png)
-  section: 6676a1fad69189cf0aa23193
+  content: @file(C:\Users\angel.ni.o.ortega\Downloads\COBE Course 2- Leading with integrity.pdf)
 }

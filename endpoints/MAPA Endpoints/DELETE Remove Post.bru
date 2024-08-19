@@ -1,12 +1,12 @@
 meta {
-  name: POST Create Section
+  name: DELETE Remove Post
   type: http
-  seq: 6
+  seq: 14
 }
 
-post {
-  url: {{api_url}}/sections
-  body: json
+delete {
+  url: {{api_url}}/posts/section-1-012307128683813295/announcemnt-1-09056859136022479
+  body: none
   auth: none
 }
 
@@ -16,7 +16,11 @@ headers {
 
 body:json {
   {
-    "title": "Section 1",
-    "description": "This is section 1"
+    "title": "Updated Section 5",
+    "description": "This is updated section 5"
   }
+}
+
+body:multipart-form {
+  : 
 }

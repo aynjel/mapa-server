@@ -1,13 +1,7 @@
 import express from "express";
 import { ctrlWrapper } from "../../helpers/ctrlWrapper.js";
 import { authenticateToken } from "../../middlewares/authenticateToken.js";
-import {
-  createSection,
-  getSections,
-  getSectionById,
-  updateSection,
-  deleteSection,
-} from "../../controllers/section.controller.js";
+import * as SectionController from "../../controllers/section.controller.js";
 
 const router = express.Router();
 
@@ -17,13 +11,13 @@ const router = express.Router();
   "description": "Section description"
 }
 */
-router.post("/", authenticateToken, ctrlWrapper(createSection));
+router.post("/", authenticateToken, ctrlWrapper(SectionController.create));
 
 /* GET: // http://localhost:3000/api/sections */
-router.get("/", authenticateToken, ctrlWrapper(getSections));
+router.get("/", authenticateToken, ctrlWrapper(SectionController.index));
 
 /* GET: // http://localhost:3000/api/sections/:id */
-router.get("/:id", authenticateToken, ctrlWrapper(getSectionById));
+router.get("/:id", authenticateToken, ctrlWrapper(SectionController.show));
 
 /* PATCH: // http://localhost:3000/api/sections/:id
 {
@@ -31,9 +25,13 @@ router.get("/:id", authenticateToken, ctrlWrapper(getSectionById));
     "description":"New section description"
 }
 */
-router.patch("/:id", authenticateToken, ctrlWrapper(updateSection));
+router.patch("/:id", authenticateToken, ctrlWrapper(SectionController.update));
 
 /* DELETE: // http://localhost:3000/api/sections/:id */
-router.delete("/:id", authenticateToken, ctrlWrapper(deleteSection));
+router.delete(
+  "/:id",
+  authenticateToken,
+  ctrlWrapper(SectionController.destroy)
+);
 
 export { router };

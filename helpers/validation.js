@@ -12,8 +12,8 @@ const favoriteValidation = Joi.object({
   favorite: Joi.bool().required(),
 });
 
-// validation for signup
-const signupValidation = Joi.object({
+// validation for creating user
+const createUserValidation = Joi.object({
   name: Joi.string().required().messages({
     "any.required": "Missing required name field",
   }),
@@ -72,13 +72,12 @@ const createPostValidation = Joi.object({
   title: Joi.string().required(),
   description: Joi.string(),
   content: Joi.string(),
-  section: Joi.string().required(),
 });
 
 export {
   contactValidation,
   favoriteValidation,
-  signupValidation,
+  createUserValidation,
   signinValidation,
   subscriptionValidation,
   emailValidation,

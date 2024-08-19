@@ -1,17 +1,22 @@
 meta {
   name: GET Sections
   type: http
-  seq: 9
+  seq: 7
 }
 
 get {
-  url: {{api_url}}/sections
+  url: {{api_url}}/sections?limit=10&page=1
   body: none
   auth: none
 }
 
+params:query {
+  limit: 10
+  page: 1
+}
+
 headers {
-  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2OTYxYjYyYTdkNzMwNGNjYjZkZmJjMiIsImlhdCI6MTcyMTExMzQ0NCwiZXhwIjoxNzIxMTk2MjQ0fQ.Yb_XK1PYw9NzRmMwKBTz4Vz-mTxXJP0OAFW0yV9NM_A
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YTlmNTM3ZDljMzMzYzU3YWJlNmUzOSIsImlhdCI6MTcyMjQxNDQxOCwiZXhwIjoxNzIyNDk3MjE4fQ.A3XgJlPvKIaVsw5hjxbpj5O5D5RCh2lvkPq61DW6M40
 }
 
 body:json {

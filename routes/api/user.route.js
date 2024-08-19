@@ -1,41 +1,25 @@
 import express from "express";
 import { ctrlWrapper } from "../../helpers/ctrlWrapper.js";
 import {
-  signupUser,
-  loginUser,
-  logoutUser,
-  getCurrentUsers,
-  updateUserSubscription,
+  create,
+  resendVerifyEmail,
   updateAvatar,
-  // verifyEmail,
-  // resendVerifyEmail,
+  updateUserSubscription,
+  verifyEmail,
 } from "../../controllers/user.controller.js";
 import { authenticateToken } from "../../middlewares/authenticateToken.js";
 import { upload } from "../../middlewares/upload.js";
 
 const router = express.Router();
 
-/* POST: // http://localhost:3000/api/users/signup
+/* POST: // http://localhost:3000/api/users/create
 {
+  "name": "John Doe",
   "email": "example@example.com",
-  "password": "examplepassword"
+  "password": "examplepassword",
 }
 */
-router.post("/signup", ctrlWrapper(signupUser));
-
-/* POST: // http://localhost:3000/api/users/login
-{
-  "email": "example@example.com",
-  "password": "examplepassword"
-}
-*/
-router.post("/login", ctrlWrapper(loginUser));
-
-/* GET: // http://localhost:3000/api/users/logout */
-router.get("/logout", authenticateToken, ctrlWrapper(logoutUser));
-
-/* GET: // http://localhost:3000/api/users/current */
-router.get("/current", authenticateToken, ctrlWrapper(getCurrentUsers));
+router.post("/create", ctrlWrapper(create));
 
 /* PATCH: // http://localhost:3000/api/users/
 {
@@ -51,14 +35,14 @@ router.patch("/", authenticateToken, ctrlWrapper(updateUserSubscription));
 // prettier-ignore
 router.patch("/avatars", authenticateToken, upload.single("avatar"), ctrlWrapper(updateAvatar));
 
-/* GET: // http://localhost:3000/api/users/verify/:verificationTokenWithExpiry */
-// router.get("/verify/:verificationTokenWithExpiry", ctrlWrapper(verifyEmail));
+/* GET: // http://localhost:3000/api/users/verify/:verificationToken */
+router.get("/verify/:verificationToken", ctrlWrapper(verifyEmail));
 
 /* POST: // http://localhost:3000/api/users/verify 
 {
   "email": "example@example.com",
 }
 */
-// router.post("/verify", authenticateToken, ctrlWrapper(resendVerifyEmail));
+router.post("/verify", authenticateToken, ctrlWrapper(resendVerifyEmail));
 
 export { router };

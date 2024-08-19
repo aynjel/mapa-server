@@ -1,13 +1,7 @@
 import express from "express";
 import { ctrlWrapper } from "../../helpers/ctrlWrapper.js";
 import { authenticateToken } from "../../middlewares/authenticateToken.js";
-import {
-  createPost,
-  getPosts,
-  getPostById,
-  updatePost,
-  deletePost,
-} from "../../controllers/post.controller.js";
+import * as PostController from "../../controllers/post.controller.js";
 import { upload } from "../../middlewares/upload.js";
 
 const router = express.Router();
@@ -21,19 +15,27 @@ const router = express.Router();
 }
 */
 router.post(
-  "/",
+  "/create/:sectionSlug",
   authenticateToken,
   upload.single("content"),
-  ctrlWrapper(createPost)
+  ctrlWrapper(PostController.index)
 );
 
 /* GET: // http://localhost:3000/api/posts */
-router.get("/", authenticateToken, ctrlWrapper(getPosts));
+router.get(
+  "/:sectionSlug",
+  authenticateToken,
+  ctrlWrapper(PostController.index)
+);
 
 /* GET: // http://localhost:3000/api/posts/:id */
-router.get("/:id", authenticateToken, ctrlWrapper(getPostById));
+router.get(
+  "/:sectionSlug/details/:postSlug",
+  authenticateToken,
+  ctrlWrapper(PostController.show)
+);
 
-/* PATCH: // http://localhost:3000/api/posts/:id
+/* PATCH: // http://localhost:3000/api/posts/:postSlug
 {
     "title":"New post title",
     "description":"New post description",
@@ -42,13 +44,17 @@ router.get("/:id", authenticateToken, ctrlWrapper(getPostById));
 }
 */
 router.patch(
-  "/:id",
+  "/:postSlug",
   authenticateToken,
   upload.single("content"),
-  ctrlWrapper(updatePost)
+  ctrlWrapper(PostController.update)
 );
 
-/* DELETE: // http://localhost:3000/api/posts/:id */
-router.delete("/:id", authenticateToken, ctrlWrapper(deletePost));
+/* DELETE: // http://localhost:3000/api/posts/:postSlug */
+router.delete(
+  "/:sectionSlug/:postSlug",
+  authenticateToken,
+  ctrlWrapper(PostController.destroy)
+);
 
 export { router };

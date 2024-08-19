@@ -1,37 +1,75 @@
+import { httpError } from "../helpers/httpError.js";
+import { slugifyChars } from "../helpers/slugify.js";
 import { createSectionValidation } from "../helpers/validation.js";
 import { Section } from "../models/section.model.js";
 
-const createSection = async (req, res, next) => {
-  const { title, description } = req.body;
-
+const create = async (req, res) => {
   const { error } = createSectionValidation.validate(req.body);
   if (error) {
-    return res.status(400).json({ message: error.message });
+    throw httpError(400, error.message);
   }
 
-  const section = await Section.create({ title, description });
+  const { _id } = req.user;
+  const { title, description } = req.body;
+  const checkSection = await Section.findOne({ title });
 
-  return res.status(201).json({ section });
+  if (checkSection) {
+    throw httpError(409, "Section already exists");
+  }
+
+  const slug = slugifyChars(title);
+  const section = await Section.create({
+    slug,
+    title,
+    description,
+    author: _id,
+    postsCount: 0,
+  });
+
+  if (!section) {
+    throw httpError(500);
+  }
+
+  res.status(201).json({
+    message: "Section created successfully",
+    data: section,
+  });
 };
 
-const getSections = async (_req, res) => {
-  const sections = await Section.find();
+const index = async (req, res) => {
+  const { _id } = req.user;
+  const { page, limit } = req.query;
+  const sections = await Section.find({
+    author: _id,
+  })
+    .limit(limit * 1)
+    .skip((page - 1) * limit);
 
-  return res.json({ sections });
+  if (!sections) {
+    throw httpError(404);
+  }
+
+  res.status(200).json({
+    message: "Sections fetched successfully",
+    data: sections,
+  });
 };
 
-const getSectionById = async (req, res) => {
+const show = async (req, res) => {
   const { id } = req.params;
   const section = await Section.findById(id);
 
   if (!section) {
-    return res.status(404).json({ message: "Not found" });
+    throw httpError(404);
   }
 
-  return res.json({ section });
+  res.status(200).json({
+    message: "Section fetched successfully",
+    data: section,
+  });
 };
 
-const updateSection = async (req, res) => {
+const update = async (req, res) => {
   const { id } = req.params;
   const { title, description } = req.body;
 
@@ -42,27 +80,27 @@ const updateSection = async (req, res) => {
   );
 
   if (!section) {
-    return res.status(404).json({ message: "Not found" });
+    throw httpError(404);
   }
 
-  return res.json({ section });
+  res.status(200).json({
+    message: "Section updated successfully",
+    data: section,
+  });
 };
 
-const deleteSection = async (req, res) => {
+const destroy = async (req, res) => {
   const { id } = req.params;
   const section = await Section.findByIdAndDelete(id);
 
   if (!section) {
-    return res.status(404).json({ message: "Not found" });
+    throw httpError(404);
   }
 
-  return res.json({ section });
+  res.status(200).json({
+    message: "Section deleted successfully",
+    data: section,
+  });
 };
 
-export {
-  createSection,
-  getSections,
-  getSectionById,
-  updateSection,
-  deleteSection,
-};
+export { create, index, show, update, destroy };

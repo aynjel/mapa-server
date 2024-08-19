@@ -4,6 +4,7 @@ const messages = {
   403: "Forbidden",
   404: "Not found",
   409: "Conflict",
+  500: "Internal server error",
 };
 
 const httpError = (status, message = messages[status]) => {

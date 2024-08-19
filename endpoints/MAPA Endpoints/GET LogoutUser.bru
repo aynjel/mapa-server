@@ -1,0 +1,22 @@
+meta {
+  name: GET LogoutUser
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{api_url}}/auth/logout
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YjA3NmUyODMzZjAyOGY2N2I4OGMxMyIsImlhdCI6MTcyMjg0MjUwMSwiZXhwIjoxNzIyOTI4OTAxfQ.iFkFAuLDIfPkiIXyn4n7-vJpk5sPWm22eaRUn0OHDBw
+}
+
+body:json {
+  {
+    "email": "kobeortega76123@gmail.com",
+    "password": "kobeortega"
+  }
+}

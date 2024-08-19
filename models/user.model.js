@@ -2,6 +2,10 @@ import { Schema, model } from "mongoose";
 
 const userSchema = new Schema(
   {
+    slug: {
+      type: String,
+      unique: true,
+    },
     name: {
       type: String,
       required: [true, "Name is required"],
@@ -11,7 +15,7 @@ const userSchema = new Schema(
       required: [true, "Email is required"],
       unique: true,
     },
-    password: {
+    hashPassword: {
       type: String,
       required: [true, "Password is required"],
     },
@@ -22,7 +26,7 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ["student", "teacher", "parents", "admin"],
+      enum: ["student", "parents", "teacher", "admin"],
       default: "student",
     },
     avatarURL: {
@@ -32,16 +36,21 @@ const userSchema = new Schema(
       type: String,
       default: null,
     },
-    // verify: {
-    //   type: Boolean,
-    //   default: false,
-    // },
-    // verificationToken: {
-    //   type: String,
-    //   required: [true, "Verify token is required"],
-    // },
+    likedPosts: {
+      type: [Schema.Types.ObjectId],
+      ref: "post",
+      default: [],
+    },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      required: [true, "Verify token is required"],
+    },
   },
-  { versionKey: false }
+  { versionKey: false, timestamps: true }
 );
 
 const User = model("user", userSchema);

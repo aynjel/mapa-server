@@ -1,0 +1,22 @@
+meta {
+  name: GET Posts
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{api_url}}/posts/66a74ef6d5b6b9dcbdf8e423
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YTMyMWE5Yzk0YTM2YTkyMDUzYWRmMCIsImlhdCI6MTcyMjIzOTU4MywiZXhwIjoxNzIyMzIyMzgzfQ.a9hrMX0GpKBignAGk_y7wWo9xvMH_yz5_3TznrTLDts
+}
+
+body:json {
+  {
+    "title": "Section 1",
+    "description": "This is section 1"
+  }
+}

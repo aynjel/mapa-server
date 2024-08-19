@@ -1,0 +1,22 @@
+meta {
+  name: GET Section
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{api_url}}/sections/66a750d2db2a854494518ef4y
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YTMyMWE5Yzk0YTM2YTkyMDUzYWRmMCIsImlhdCI6MTcyMjIzOTU4MywiZXhwIjoxNzIyMzIyMzgzfQ.a9hrMX0GpKBignAGk_y7wWo9xvMH_yz5_3TznrTLDts
+}
+
+body:json {
+  {
+    "title": "Section 1",
+    "description": "This is section 1"
+  }
+}
