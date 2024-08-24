@@ -29,7 +29,7 @@ const createUserValidation = Joi.object({
     "string.min": "Password must be at least {#limit} characters long",
     "string.max": "Password cannot be longer than {#limit} characters",
   }),
-  role: Joi.string().valid("student", "teacher", "parents", "admin"),
+  role: Joi.string().valid("student", "teacher", "parent", "admin"),
 });
 
 // validation for signin
