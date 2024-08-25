@@ -33,7 +33,7 @@ const createUserValidation = Joi.object({
 });
 
 // validation for signin
-const signinValidation = Joi.object({
+const signInValidation = Joi.object({
   email: Joi.string()
     .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
     .required()
@@ -68,8 +68,19 @@ const createSectionValidation = Joi.object({
   description: Joi.string(),
 });
 
+const updateSectionValidation = Joi.object({
+  title: Joi.string(),
+  description: Joi.string(),
+});
+
 const createPostValidation = Joi.object({
   title: Joi.string().required(),
+  description: Joi.string(),
+  content: Joi.string(),
+});
+
+const updatePostValidation = Joi.object({
+  title: Joi.string(),
   description: Joi.string(),
   content: Joi.string(),
 });
@@ -78,9 +89,11 @@ export {
   contactValidation,
   favoriteValidation,
   createUserValidation,
-  signinValidation,
+  signInValidation,
   subscriptionValidation,
   emailValidation,
   createSectionValidation,
+  updateSectionValidation,
   createPostValidation,
+  updatePostValidation,
 };

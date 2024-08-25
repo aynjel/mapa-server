@@ -1,4 +1,7 @@
-import { createPostValidation } from "../helpers/validation.js";
+import {
+  createPostValidation,
+  updatePostValidation,
+} from "../helpers/validation.js";
 import path from "path";
 import fs from "fs/promises";
 import { httpError } from "../helpers/httpError.js";
@@ -10,45 +13,48 @@ import { slugifyChars } from "../helpers/slugify.js";
 const create = async (req, res, next) => {
   const { _id } = req.user;
   const { sectionSlug } = req.params;
-  const { title, description } = req.body;
   const { path: tempPath, originalname } = req.file;
+
   const { error } = createPostValidation.validate(req.body);
+  if (error) next(httpError(400, error.message));
 
-  if (error) {
-    return next(httpError(400, error.message));
-  }
+  const { title, description } = req.body;
 
-  const section = await Section.findOne({ slug: sectionSlug });
-  if (!section) {
-    return next(httpError(404, "Section not found"));
-  }
+  const postSection = await Section.findOne({ slug: sectionSlug });
+  if (!postSection) next(httpError(404));
 
-  try {
-    const slug = slugifyChars(title);
-    const { secure_url } = await cloudinary.uploader.upload(tempPath, {
-      folder: "posts",
-      public_id: `${_id}-${slug}`,
-    });
-    const filename = `${Date.now()}-${originalname}`;
-    const newPath = path.join("public", "posts", filename);
-    await fs.rename(tempPath, newPath);
-    const post = await Post.create({
-      slug,
-      title,
-      description,
-      content: secure_url,
-      section: section._id,
-      author: _id,
-    });
-    section.postsCount += 1;
-    await section.save();
-    return res.status(201).json({
-      message: "Post created successfully",
-      data: post,
-    });
-  } catch (error) {
-    return next(httpError(500));
-  }
+  const checkPost = await Post.findOne({ title });
+  if (checkPost) next(httpError(409, "Post already exists"));
+
+  const slug = slugifyChars(title);
+  const slugOriginal = slugifyChars(originalname);
+  const filename = `${Date.now()}-${slugOriginal}`;
+  const newPath = path.join("public", "posts", filename);
+  await fs.rename(tempPath, newPath);
+  const { secure_url } = await cloudinary.uploader.upload(newPath, {
+    folder: "posts",
+    public_id: `${_id}-${slug}`,
+  });
+
+  await fs.unlink(newPath);
+
+  const newPost = await Post.create({
+    slug,
+    title,
+    description,
+    content: secure_url,
+    section: postSection._id,
+    author: _id,
+  });
+  if (!newPost) next(httpError(500));
+
+  postSection.postsCount += 1;
+  await postSection.save();
+
+  return res.status(201).json({
+    message: "Post created successfully",
+    data: newPost,
+  });
 };
 
 const index = async (req, res, next) => {
@@ -79,39 +85,61 @@ const show = async (req, res, next) => {
   });
 };
 
-const update = async (req, res) => {
-  const { id } = req.params;
-  const { title, description, content, section } = req.body;
-  const post = await Post.findByIdAndUpdate(
-    id,
-    { title, description, content, section },
-    { new: true }
-  );
-
+const update = async (req, res, next) => {
+  const { postSlug } = req.params;
+  const post = await Post.findOne({ slug: postSlug });
   if (!post) {
-    return res.status(404).json({ message: "Not found" });
+    return next(httpError(404));
+  }
+
+  const { error } = updatePostValidation.validate(req.body);
+  if (error) {
+    return next(httpError(400, error.message));
+  }
+
+  const { title, description } = req.body;
+  const { path: tempPath, originalname } = req.file;
+
+  // save to disk and  unlink the old file
+  if (tempPath) {
+    const filename = `${Date.now()}-${originalname}`;
+    const newPath = path.join("public", "posts", filename);
+    await fs.rename(tempPath, newPath);
+    const oldPath = path.join("public", "posts", post.slug);
+    await fs.unlink(oldPath);
+    post.content = filename;
+  }
+
+  post.title = title;
+  post.description = description;
+
+  const updatedPost = await post.save();
+  if (!updatedPost) {
+    return next(httpError(500, "Post update error"));
   }
 
   return res.status(200).json({
     message: "Post updated successfully",
-    data: post,
+    data: updatedPost,
   });
 };
 
-const destroy = async (req, res) => {
+const destroy = async (req, res, next) => {
   const { sectionSlug, postSlug } = req.params;
   const post = await Post.findOneAndDelete({ slug: postSlug });
-
   if (!post) {
-    return res.status(404).json({ message: "Not found" });
+    return next(httpError(404));
   }
 
-  // decrement section posts count
   const section = await Section.findOne({ slug: sectionSlug });
+  if (!section) {
+    return next(httpError(404));
+  }
   section.postsCount -= 1;
   await section.save();
 
-  await cloudinary.uploader.destroy(post.slug);
+  const result = await cloudinary.uploader.destroy(post.slug);
+  console.log(result);
 
   return res.status(200).json({
     message: "Post deleted successfully",

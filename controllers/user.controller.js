@@ -23,19 +23,19 @@ const EmailEndpoint =
     ? `${PROD_URL}/api/users/verify`
     : `${LOCAL_URL}/api/users/verify`;
 
-const create = async (req, res) => {
-  const { name, email, password, role = "student" } = req.body;
-
-  //  Registration validation error
+const create = async (req, res, next) => {
+  // Validation
   const { error } = createUserValidation.validate(req.body);
   if (error) {
-    throw httpError(400, error.message);
+    return next(httpError(400, error.message));
   }
+
+  const { name, email, password, role = "student" } = req.body;
 
   // Registration conflict error
   const user = await User.findOne({ email });
   if (user) {
-    throw httpError(409, "Email in Use");
+    return next(httpError(409, "Email in Use"));
   }
 
   const hashPassword = await bcrypt.hash(password, 10);
@@ -58,7 +58,7 @@ const create = async (req, res) => {
     verificationToken,
   });
   if (!newUser) {
-    throw httpError(500, "Registration error");
+    return next(httpError(500, "Registration error"));
   }
 
   // Send an email to the user's mail and specify a link to verify the email (/users/verify/:verificationToken) in the message
@@ -78,7 +78,7 @@ const create = async (req, res) => {
   });
 
   // Registration success response
-  res.status(201).json({
+  return res.status(201).json({
     message: "Registration successful",
     data: {
       name: newUser.name,
@@ -91,28 +91,36 @@ const create = async (req, res) => {
   });
 };
 
-const updateUserSubscription = async (req, res) => {
+const updateUserSubscription = async (req, res, next) => {
   const { error } = subscriptionValidation.validate(req.body);
   if (error) {
-    throw httpError(400, error.message);
+    return next(httpError(400, error.message));
   }
 
   const { subscription } = req.body;
   const { _id } = req.user;
+
+  const user = await User.findById(_id);
+  if (!user) {
+    return next(httpError(404, "User not found"));
+  }
 
   const updatedUser = await User.findByIdAndUpdate(
     _id,
     { subscription },
     { new: true }
   );
+  if (!updatedUser) {
+    return next(httpError(500, "Subscription update error"));
+  }
 
-  res.status(200).json({
-    email: updatedUser.email,
-    subscription: updatedUser.subscription,
+  return res.status(200).json({
+    message: "Subscription updated successfully",
+    data: updatedUser,
   });
 };
 
-const updateAvatar = async (req, res) => {
+const updateAvatar = async (req, res, next) => {
   const { _id } = req.user;
   const { path: oldPath, originalname } = req.file;
 
@@ -129,55 +137,59 @@ const updateAvatar = async (req, res) => {
   let avatarURL = path.join("/avatars", filename);
   avatarURL = avatarURL.replace(/\\/g, "/");
 
-  await User.findByIdAndUpdate(_id, { avatarURL });
-  res.status(200).json({ avatarURL });
+  const updatedAvatar = await User.findByIdAndUpdate(_id, { avatarURL });
+  if (!updatedAvatar) {
+    return next(httpError(500, "Avatar update error"));
+  }
+
+  return res.status(200).json({
+    message: "Avatar updated successfully",
+    data: { avatarURL },
+  });
 };
 
-const verifyEmail = async (req, res) => {
+const verifyEmail = async (req, res, next) => {
   const { verificationToken } = req.params;
-  // eslint-disable-next-line no-unused-vars
+
   const [token, expiry] = verificationToken.split("T");
   const currentTime = new Date().getTime();
-
   if (currentTime > Number(expiry)) {
-    throw httpError(400, "Verification link has expired");
+    return next(httpError(400, "Verification link has expired"));
   }
 
-  const user = await User.findOne({
-    verificationToken,
-  });
-
+  const user = await User.findOne({ verificationToken });
   if (!user) {
-    throw httpError(404, "User not found");
+    return next(httpError(404, "Verification error"));
   }
 
-  await User.findByIdAndUpdate(user._id, {
+  const updatedUser = await User.findByIdAndUpdate(user._id, {
     verify: true,
     verificationToken: null,
   });
+  if (!updatedUser) {
+    return next(httpError(500, "Verification error"));
+  }
 
-  // Verification success response
-  res.status(200).json({
+  return res.status(200).json({
     message: "Verification successful",
+    data: updatedUser,
   });
 };
 
-const resendVerifyEmail = async (req, res) => {
+const resendVerifyEmail = async (req, res, next) => {
   const { error } = emailValidation.validate(req.body);
   if (error) {
-    throw httpError(400, error.message);
+    return next(httpError(400, error.message));
   }
 
   const { email } = req.body;
-
   const user = await User.findOne({ email });
-
   if (!user) {
-    throw httpError(404, "User not found");
+    return next(httpError(404, "User not found"));
   }
 
   if (user.verify) {
-    throw httpError(400, "Verification has already been passed");
+    return next(httpError(400, "Verification has already been passed"));
   }
 
   const verificationToken = uuid4();
@@ -185,9 +197,12 @@ const resendVerifyEmail = async (req, res) => {
     new Date().getTime() + 1000 * 60 * 60
   }`;
 
-  await User.findByIdAndUpdate(user._id, {
+  const updatedUser = await User.findByIdAndUpdate(user._id, {
     verificationToken: verificationTokenWithExpiry,
   });
+  if (!updatedUser) {
+    return next(httpError(500, "Verification error"));
+  }
 
   await sendEmail({
     to: email,
@@ -204,9 +219,9 @@ const resendVerifyEmail = async (req, res) => {
     `,
   });
 
-  // Resend verification success response
-  res.status(200).json({
+  return res.status(200).json({
     message: "Verification email sent",
+    data: updatedUser,
   });
 };
 

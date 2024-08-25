@@ -1,20 +1,22 @@
 import { httpError } from "../helpers/httpError.js";
 import { slugifyChars } from "../helpers/slugify.js";
-import { createSectionValidation } from "../helpers/validation.js";
+import {
+  createSectionValidation,
+  updateSectionValidation,
+} from "../helpers/validation.js";
 import { Section } from "../models/section.model.js";
 
-const create = async (req, res) => {
+const create = async (req, res, next) => {
   const { error } = createSectionValidation.validate(req.body);
   if (error) {
-    throw httpError(400, error.message);
+    return next(httpError(400, error.message));
   }
 
   const { _id } = req.user;
   const { title, description } = req.body;
   const checkSection = await Section.findOne({ title });
-
   if (checkSection) {
-    throw httpError(409, "Section already exists");
+    return next(httpError(409, "Section already exists"));
   }
 
   const slug = slugifyChars(title);
@@ -27,16 +29,16 @@ const create = async (req, res) => {
   });
 
   if (!section) {
-    throw httpError(500);
+    return next(httpError(500));
   }
 
-  res.status(201).json({
+  return res.status(201).json({
     message: "Section created successfully",
     data: section,
   });
 };
 
-const index = async (req, res) => {
+const index = async (req, res, next) => {
   const { _id } = req.user;
   const { page, limit } = req.query;
   const sections = await Section.find({
@@ -46,60 +48,62 @@ const index = async (req, res) => {
     .skip((page - 1) * limit);
 
   if (!sections) {
-    throw httpError(404);
+    return next(httpError(404));
   }
 
-  res.status(200).json({
+  return res.status(200).json({
     message: "Sections fetched successfully",
     data: sections,
   });
 };
 
-const show = async (req, res) => {
-  const { id } = req.params;
-  const section = await Section.findById(id);
-
+const show = async (req, res, next) => {
+  const { sectionId } = req.params;
+  const section = await Section.findById(sectionId);
   if (!section) {
-    throw httpError(404);
+    return next(httpError(404));
   }
 
-  res.status(200).json({
+  return res.status(200).json({
     message: "Section fetched successfully",
     data: section,
   });
 };
 
-const update = async (req, res) => {
-  const { id } = req.params;
-  const { title, description } = req.body;
+const update = async (req, res, next) => {
+  const { sectionId } = req.params;
 
-  const section = await Section.findByIdAndUpdate(
-    id,
+  const { error } = updateSectionValidation.validate(req.body);
+  if (error) {
+    return next(httpError(400, error.message));
+  }
+
+  const { title, description } = req.body;
+  const updatedSection = await Section.findByIdAndUpdate(
+    sectionId,
     { title, description },
     { new: true }
   );
-
-  if (!section) {
-    throw httpError(404);
+  if (!updatedSection) {
+    return next(httpError(404));
   }
 
-  res.status(200).json({
+  return res.status(200).json({
     message: "Section updated successfully",
-    data: section,
+    data: updatedSection,
   });
 };
 
-const destroy = async (req, res) => {
-  const { id } = req.params;
-  const section = await Section.findByIdAndDelete(id);
-
-  if (!section) {
-    throw httpError(404);
+const destroy = async (req, res, next) => {
+  const { sectionId } = req.params;
+  const deletedSection = await Section.findByIdAndDelete(sectionId);
+  if (!deletedSection) {
+    return next(httpError(404));
   }
 
-  res.status(200).json({
+  return res.status(200).json({
     message: "Section deleted successfully",
-    data: section,
+    data: deletedSection,
   });
 };
 

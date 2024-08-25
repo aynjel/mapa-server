@@ -16,20 +16,28 @@ router.post("/", authenticateToken, ctrlWrapper(SectionController.create));
 /* GET: // http://localhost:3000/api/sections */
 router.get("/", authenticateToken, ctrlWrapper(SectionController.index));
 
-/* GET: // http://localhost:3000/api/sections/:id */
-router.get("/:id", authenticateToken, ctrlWrapper(SectionController.show));
+/* GET: // http://localhost:3000/api/sections/:sectionId */
+router.get(
+  "/:sectionId",
+  authenticateToken,
+  ctrlWrapper(SectionController.show)
+);
 
-/* PATCH: // http://localhost:3000/api/sections/:id
+/* PATCH: // http://localhost:3000/api/sections/:sectionId
 {
     "title":"New section title",
     "description":"New section description"
 }
 */
-router.patch("/:id", authenticateToken, ctrlWrapper(SectionController.update));
+router.patch(
+  "/:sectionId",
+  authenticateToken,
+  ctrlWrapper(SectionController.update)
+);
 
-/* DELETE: // http://localhost:3000/api/sections/:id */
+/* DELETE: // http://localhost:3000/api/sections/:sectionId */
 router.delete(
-  "/:id",
+  "/:sectionId",
   authenticateToken,
   ctrlWrapper(SectionController.destroy)
 );

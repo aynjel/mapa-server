@@ -18,7 +18,7 @@ router.post(
   "/create/:sectionSlug",
   authenticateToken,
   upload.single("content"),
-  ctrlWrapper(PostController.index)
+  ctrlWrapper(PostController.create)
 );
 
 /* GET: // http://localhost:3000/api/posts */
