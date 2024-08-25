@@ -58,8 +58,10 @@ const index = async (req, res, next) => {
 };
 
 const show = async (req, res, next) => {
-  const { sectionId } = req.params;
-  const section = await Section.findById(sectionId);
+  const { sectionSlug } = req.params;
+  const section = await Section.findOne({
+    slug: sectionSlug,
+  });
   if (!section) {
     return next(httpError(404));
   }

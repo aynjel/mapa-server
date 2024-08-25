@@ -16,9 +16,9 @@ router.post("/", authenticateToken, ctrlWrapper(SectionController.create));
 /* GET: // http://localhost:3000/api/sections */
 router.get("/", authenticateToken, ctrlWrapper(SectionController.index));
 
-/* GET: // http://localhost:3000/api/sections/:sectionId */
+/* GET: // http://localhost:3000/api/sections/:sectionSlug */
 router.get(
-  "/:sectionId",
+  "/:sectionSlug",
   authenticateToken,
   ctrlWrapper(SectionController.show)
 );
