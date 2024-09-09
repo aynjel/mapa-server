@@ -22,10 +22,12 @@ router.post(
 );
 
 /* GET: // http://localhost:3000/api/posts */
+router.get("/", authenticateToken, ctrlWrapper(PostController.index));
+
 router.get(
-  "/:sectionSlug",
+  "/by-section",
   authenticateToken,
-  ctrlWrapper(PostController.index)
+  ctrlWrapper(PostController.indexBySection)
 );
 
 /* GET: // http://localhost:3000/api/posts/:id */

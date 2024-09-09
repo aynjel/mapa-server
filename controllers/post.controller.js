@@ -58,6 +58,19 @@ const create = async (req, res, next) => {
 };
 
 const index = async (req, res, next) => {
+  const posts = await Post.find();
+
+  if (!posts) {
+    return next(httpError(404, "No Posts Found"));
+  }
+
+  return res.status(200).json({
+    message: "Posts fetched successfully",
+    data: posts,
+  });
+};
+
+const indexBySection = async (req, res, next) => {
   const { sectionId } = req.params;
   const posts = await Post.find({ sectionId }).populate("section");
 
@@ -147,4 +160,4 @@ const destroy = async (req, res, next) => {
   });
 };
 
-export { create, index, show, update, destroy };
+export { create, index, indexBySection, show, update, destroy };

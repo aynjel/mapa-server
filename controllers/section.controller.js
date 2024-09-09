@@ -39,6 +39,22 @@ const create = async (req, res, next) => {
 };
 
 const index = async (req, res, next) => {
+  const { page, limit } = req.query;
+  const sections = await Section.find()
+    .limit(limit * 1)
+    .skip((page - 1) * limit);
+
+  if (!sections) {
+    return next(httpError(404));
+  }
+
+  return res.status(200).json({
+    message: "Sections fetched successfully",
+    data: sections,
+  });
+};
+
+const indexByAuthor = async (req, res, next) => {
   const { _id } = req.user;
   const { page, limit } = req.query;
   const sections = await Section.find({
@@ -109,4 +125,4 @@ const destroy = async (req, res, next) => {
   });
 };
 
-export { create, index, show, update, destroy };
+export { create, index, indexByAuthor, show, update, destroy };

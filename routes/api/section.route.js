@@ -16,6 +16,12 @@ router.post("/", authenticateToken, ctrlWrapper(SectionController.create));
 /* GET: // http://localhost:3000/api/sections */
 router.get("/", authenticateToken, ctrlWrapper(SectionController.index));
 
+router.get(
+  "/by-author",
+  authenticateToken,
+  ctrlWrapper(SectionController.indexByAuthor)
+);
+
 /* GET: // http://localhost:3000/api/sections/:sectionSlug */
 router.get(
   "/:sectionSlug",
