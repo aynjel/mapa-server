@@ -42,7 +42,8 @@ const index = async (req, res, next) => {
   const { page, limit } = req.query;
   const sections = await Section.find()
     .limit(limit * 1)
-    .skip((page - 1) * limit);
+    .skip((page - 1) * limit)
+    .sort({ createdAt: -1 });
 
   if (!sections) {
     return next(httpError(404));

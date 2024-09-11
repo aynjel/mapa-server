@@ -64,7 +64,7 @@ const logout = async (req, res, next) => {
 };
 
 const currentUser = async (req, res, next) => {
-  const { name, email, subscription, role, avatarURL } = req.user;
+  const { name, email, subscription, role, avatarURL, token } = req.user;
 
   // Check if user exists
   const user = await User.findOne({ email });
@@ -80,6 +80,7 @@ const currentUser = async (req, res, next) => {
       subscription,
       role,
       avatarURL,
+      token,
     },
   });
 };
