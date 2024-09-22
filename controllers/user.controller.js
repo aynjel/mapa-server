@@ -23,6 +23,15 @@ const EmailEndpoint =
     ? `${PROD_URL}/api/users/verify`
     : `${LOCAL_URL}/api/users/verify`;
 
+const getUsers = async (req, res, next) => {
+  const users = await User.find();
+
+  return res.status(201).json({
+    message: "Users Fetched",
+    data: users,
+  });
+};
+
 const create = async (req, res, next) => {
   // Validation
   const { error } = createUserValidation.validate(req.body);
@@ -226,6 +235,7 @@ const resendVerifyEmail = async (req, res, next) => {
 };
 
 export {
+  getUsers,
   create,
   updateUserSubscription,
   updateAvatar,

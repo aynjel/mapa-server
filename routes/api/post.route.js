@@ -15,7 +15,7 @@ const router = express.Router();
 }
 */
 router.post(
-  "/create/:sectionSlug",
+  "/create/:section",
   authenticateToken,
   upload.single("content"),
   ctrlWrapper(PostController.create)
@@ -25,7 +25,7 @@ router.post(
 router.get("/", authenticateToken, ctrlWrapper(PostController.index));
 
 router.get(
-  "/by-section",
+  "/:section",
   authenticateToken,
   ctrlWrapper(PostController.indexBySection)
 );
