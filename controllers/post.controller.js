@@ -13,6 +13,7 @@ import { slugifyChars } from "../helpers/slugify.js";
 const create = async (req, res, next) => {
   const { _id } = req.user;
   const { section } = req.params;
+  const { path: tempPath, originalname } = req.file;
 
   const { error } = createPostValidation.validate(req.body);
   if (error) next(httpError(400, error.message));
@@ -26,11 +27,22 @@ const create = async (req, res, next) => {
   const checkPost = await Post.findOne({ title });
   if (checkPost) next(httpError(409, "Post already exists"));
 
+  const slugOriginal = slugifyChars(originalname);
+  const filename = `${Date.now()}-${slugOriginal}`;
+  const newPath = path.join("public", "posts", filename);
+  await fs.rename(tempPath, newPath);
+  const { secure_url } = await cloudinary.uploader.upload(newPath, {
+    folder: "posts",
+    public_id: `${_id}-${slug}`,
+  });
+
+  await fs.unlink(newPath);
+
   const newPost = await Post.create({
     slug,
     title,
     description,
-    content: "secure_url",
+    content: secure_url,
     section: postSection._id,
     author: _id,
   });
@@ -45,57 +57,8 @@ const create = async (req, res, next) => {
   });
 };
 
-// const create = async (req, res, next) => {
-//   console.log(req.body, req.file);
-
-//   const { _id } = req.user;
-//   const { section } = req.params;
-//   const { path: tempPath, originalname } = req.file;
-
-//   const { error } = createPostValidation.validate(req.body);
-//   if (error) next(httpError(400, error.message));
-
-//   const { title, description } = req.body;
-
-//   const postSection = await Section.findOne({ slug: section });
-//   if (!postSection) next(httpError(404));
-
-//   const checkPost = await Post.findOne({ title });
-//   if (checkPost) next(httpError(409, "Post already exists"));
-
-//   const slug = slugifyChars(title);
-//   const slugOriginal = slugifyChars(originalname);
-//   const filename = `${Date.now()}-${slugOriginal}`;
-//   const newPath = path.join("public", "posts", filename);
-//   await fs.rename(tempPath, newPath);
-//   const { secure_url } = await cloudinary.uploader.upload(newPath, {
-//     folder: "posts",
-//     public_id: `${_id}-${slug}`,
-//   });
-
-//   await fs.unlink(newPath);
-
-//   const newPost = await Post.create({
-//     slug,
-//     title,
-//     description,
-//     content: secure_url,
-//     section: postSection._id,
-//     author: _id,
-//   });
-//   if (!newPost) next(httpError(500));
-
-//   postSection.postsCount += 1;
-//   await postSection.save();
-
-//   return res.status(201).json({
-//     message: "Post created successfully",
-//     data: newPost,
-//   });
-// };
-
 const index = async (req, res, next) => {
-  const posts = await Post.find();
+  const posts = await Post.find().sort({ createdAt: -1 });
 
   if (!posts) {
     return next(httpError(404, "No Posts Found"));
@@ -108,8 +71,24 @@ const index = async (req, res, next) => {
 };
 
 const indexBySection = async (req, res, next) => {
+  const { page, limit } = req.query;
   const { section } = req.params;
-  const posts = await Post.find({ section }).populate("section");
+  if (!section) {
+    return next(httpError(404, "No Posts Found"));
+  }
+
+  const sectionFound = await Section.findOne({ slug: section });
+  if (!sectionFound) {
+    return next(httpError(404, "No Posts Found"));
+  }
+
+  const posts = await Post.find({
+    section: sectionFound._id,
+  })
+    .limit(limit * 1)
+    .skip((page - 1) * limit)
+    .sort({ createdAt: -1 })
+    .populate("section");
 
   if (!posts) {
     return next(httpError(404, "No Posts Found"));
