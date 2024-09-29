@@ -5,6 +5,7 @@ import { router as authRouter } from "./routes/api/auth.route.js";
 import { router as usersRouter } from "./routes/api/user.route.js";
 import { router as postsRouter } from "./routes/api/post.route.js";
 import { router as sectionsRouter } from "./routes/api/section.route.js";
+import { router as lessonsRouter } from "./routes/api/lesson.route.js";
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/sections", sectionsRouter);
 app.use("/api/posts", postsRouter);
+app.use("/api/lessons", lessonsRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ message: "Not found" });

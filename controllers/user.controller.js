@@ -24,7 +24,10 @@ const EmailEndpoint =
     : `${LOCAL_URL}/api/users/verify`;
 
 const getUsers = async (req, res, next) => {
-  const users = await User.find();
+  const users = await User.find().sort({ createdAt: -1 });
+  if (!users) {
+    return next(httpError(404, "No Users Found"));
+  }
 
   return res.status(201).json({
     message: "Users Fetched",

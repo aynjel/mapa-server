@@ -5,6 +5,8 @@ import {
   updateSectionValidation,
 } from "../helpers/validation.js";
 import { Section } from "../models/section.model.js";
+import { Post } from "../models/post.model.js";
+import { Lesson } from "../models/lesson.model.js";
 
 const create = async (req, res, next) => {
   const { error } = createSectionValidation.validate(req.body);
@@ -114,11 +116,19 @@ const update = async (req, res, next) => {
 };
 
 const destroy = async (req, res, next) => {
-  const { sectionId } = req.params;
+  const { sectionSlug } = req.params;
+  const sectionId = await Section.findOne({ slug: sectionSlug });
+  if (!sectionId) {
+    return next(httpError(404));
+  }
   const deletedSection = await Section.findByIdAndDelete(sectionId);
   if (!deletedSection) {
     return next(httpError(404));
   }
+
+  // delete all posts and lesson related to this section
+  await Post.deleteMany({ section: sectionId });
+  await Lesson.deleteMany({ section: sectionId });
 
   return res.status(200).json({
     message: "Section deleted successfully",

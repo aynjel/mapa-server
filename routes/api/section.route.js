@@ -43,7 +43,7 @@ router.patch(
 
 /* DELETE: // http://localhost:3000/api/sections/:sectionId */
 router.delete(
-  "/:sectionId",
+  "/:sectionSlug",
   authenticateToken,
   ctrlWrapper(SectionController.destroy)
 );
