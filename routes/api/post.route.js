@@ -32,7 +32,7 @@ router.get(
 
 /* GET: // http://localhost:3000/api/posts/:id */
 router.get(
-  "/:sectionSlug/details/:postSlug",
+  "/details/:postSlug",
   authenticateToken,
   ctrlWrapper(PostController.show)
 );

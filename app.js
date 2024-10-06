@@ -6,6 +6,7 @@ import { router as usersRouter } from "./routes/api/user.route.js";
 import { router as postsRouter } from "./routes/api/post.route.js";
 import { router as sectionsRouter } from "./routes/api/section.route.js";
 import { router as lessonsRouter } from "./routes/api/lesson.route.js";
+import { router as commentsRouter } from "./routes/api/comment.route.js";
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/sections", sectionsRouter);
 app.use("/api/posts", postsRouter);
+app.use("/api/comments", commentsRouter);
 app.use("/api/lessons", lessonsRouter);
 
 app.use((_req, res) => {

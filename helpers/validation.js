@@ -76,12 +76,19 @@ const updateSectionValidation = Joi.object({
 const createPostValidation = Joi.object({
   title: Joi.string().required(),
   description: Joi.string(),
-  // content: Joi.string(),
 });
 
 const updatePostValidation = Joi.object({
   title: Joi.string(),
   description: Joi.string(),
+  content: Joi.string(),
+});
+
+const createCommentValidation = Joi.object({
+  content: Joi.string().required(),
+});
+
+const updateCommentValidation = Joi.object({
   content: Joi.string(),
 });
 
@@ -96,4 +103,6 @@ export {
   updateSectionValidation,
   createPostValidation,
   updatePostValidation,
+  createCommentValidation,
+  updateCommentValidation,
 };

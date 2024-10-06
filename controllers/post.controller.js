@@ -101,8 +101,8 @@ const indexBySection = async (req, res, next) => {
 };
 
 const show = async (req, res, next) => {
-  const { id } = req.params;
-  const post = await Post.findById(id).populate("section");
+  const { postSlug } = req.params;
+  const post = await Post.findOne({ slug: postSlug }).populate("section");
 
   if (!post) {
     return next(httpError(404));

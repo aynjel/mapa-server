@@ -1,0 +1,30 @@
+meta {
+  name: POST Create Comment
+  type: http
+  seq: 19
+}
+
+post {
+  url: {{api_url}}/comments/create/first-quarter-reminder-08485299217488325
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MDFkNjkyZGI2ZjJjZmU0ODU0Mjg3YiIsImlhdCI6MTcyODE3MzcyMSwiZXhwIjoxNzI4MjYwMTIxfQ.eNtkLelNm5obvVZq5ClBLhK-nHR0J5Fedmp_03dIsFc
+}
+
+body:json {
+  {
+    "content": "test comment"
+  }
+}
+
+body:form-urlencoded {
+  content: test comment
+}
+
+body:multipart-form {
+  title: Announcemnt 2
+  description: This is announcemnt 2
+}
