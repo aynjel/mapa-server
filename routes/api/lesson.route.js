@@ -25,14 +25,14 @@ router.post(
 router.get("/", authenticateToken, ctrlWrapper(LessonController.index));
 
 router.get(
-  "/:section",
+  "/sections/:section",
   authenticateToken,
   ctrlWrapper(LessonController.indexBySection)
 );
 
 /* GET: // http://localhost:3000/api/posts/:id */
 router.get(
-  "/:sectionSlug/details/:postSlug",
+  "/:lessonSlug",
   authenticateToken,
   ctrlWrapper(LessonController.show)
 );
@@ -45,16 +45,16 @@ router.get(
     "section":"New post section"
 }
 */
-router.patch(
-  "/:postSlug",
+router.put(
+  "/:lessonSlug",
   authenticateToken,
   upload.single("content"),
   ctrlWrapper(LessonController.update)
 );
 
-/* DELETE: // http://localhost:3000/api/posts/:postSlug */
+/* DELETE: // http://localhost:3000/api/posts/:lessonSlug */
 router.delete(
-  "/:sectionSlug/:postSlug",
+  "/:lessonSlug",
   authenticateToken,
   ctrlWrapper(LessonController.destroy)
 );

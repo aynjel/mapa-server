@@ -36,7 +36,7 @@ router.get(
 }
 */
 router.patch(
-  "/:sectionId",
+  "/:sectionSlug",
   authenticateToken,
   ctrlWrapper(SectionController.update)
 );

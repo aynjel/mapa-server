@@ -92,7 +92,7 @@ const show = async (req, res, next) => {
 };
 
 const update = async (req, res, next) => {
-  const { sectionId } = req.params;
+  const { sectionSlug } = req.params;
 
   const { error } = updateSectionValidation.validate(req.body);
   if (error) {
@@ -100,11 +100,15 @@ const update = async (req, res, next) => {
   }
 
   const { title, description } = req.body;
-  const updatedSection = await Section.findByIdAndUpdate(
-    sectionId,
-    { title, description },
-    { new: true }
-  );
+  const sectionId = await Section.findOne({ slug: sectionSlug });
+  if (!sectionId) {
+    return next(httpError(404));
+  }
+
+  const updatedSection = await Section.findByIdAndUpdate(sectionId, {
+    title,
+    description,
+  });
   if (!updatedSection) {
     return next(httpError(404));
   }

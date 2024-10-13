@@ -45,7 +45,7 @@ router.get(
     "section":"New post section"
 }
 */
-router.patch(
+router.put(
   "/:postSlug",
   authenticateToken,
   upload.single("content"),
@@ -54,7 +54,7 @@ router.patch(
 
 /* DELETE: // http://localhost:3000/api/posts/:postSlug */
 router.delete(
-  "/:sectionSlug/:postSlug",
+  "/:postSlug",
   authenticateToken,
   ctrlWrapper(PostController.destroy)
 );

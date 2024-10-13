@@ -101,22 +101,26 @@ const indexBySection = async (req, res, next) => {
 };
 
 const show = async (req, res, next) => {
-  const { id } = req.params;
-  const post = await Lesson.findById(id).populate("section");
+  const { lessonSlug } = req.params;
+  const lesson = await Lesson.findOne({ slug: lessonSlug });
+  if (!lesson) {
+    return next(httpError(404));
+  }
 
+  const post = await Lesson.findById(lesson._id).populate("section");
   if (!post) {
     return next(httpError(404));
   }
 
   return res.status(200).json({
-    message: "Post fetched successfully",
+    message: "Lesson fetched successfully",
     data: post,
   });
 };
 
 const update = async (req, res, next) => {
-  const { postSlug } = req.params;
-  const post = await Lesson.findOne({ slug: postSlug });
+  const { lessonSlug } = req.params;
+  const post = await Lesson.findOne({ slug: lessonSlug });
   if (!post) {
     return next(httpError(404));
   }
@@ -129,46 +133,49 @@ const update = async (req, res, next) => {
   const { title, description } = req.body;
   const { path: tempPath, originalname } = req.file;
 
-  // save to disk and  unlink the old file
-  if (tempPath) {
-    const filename = `${Date.now()}-${originalname}`;
-    const newPath = path.join("public", "posts", filename);
-    await fs.rename(tempPath, newPath);
-    const oldPath = path.join("public", "posts", post.slug);
-    await fs.unlink(oldPath);
-    post.content = filename;
-  }
-
   post.title = title;
   post.description = description;
 
-  const updatedPost = await Lesson.save();
-  if (!updatedPost) {
-    return next(httpError(500, "Post update error"));
+  if (tempPath) {
+    const slugOriginal = slugifyChars(originalname);
+    const filename = `${Date.now()}-${slugOriginal}`;
+    const newPath = path.join("public", "posts", filename);
+    await fs.rename(tempPath, newPath);
+    const { secure_url } = await cloudinary.uploader.upload(newPath, {
+      folder: "posts",
+      public_id: post.slug,
+    });
+
+    await fs.unlink(newPath);
+    post.content = secure_url;
+  }
+
+  const updatedLesson = await post.save();
+  if (!updatedLesson) {
+    return next(httpError(500, "Lesson update error"));
   }
 
   return res.status(200).json({
-    message: "Post updated successfully",
-    data: updatedPost,
+    message: "Lesson updated successfully",
+    data: updatedLesson,
   });
 };
 
 const destroy = async (req, res, next) => {
-  const { sectionSlug, postSlug } = req.params;
-  const post = await Lesson.findOneAndDelete({ slug: postSlug });
+  const { lessonSlug } = req.params;
+  const post = await Lesson.findOneAndDelete({ slug: lessonSlug });
   if (!post) {
     return next(httpError(404));
   }
 
-  const section = await Section.findOne({ slug: sectionSlug });
-  if (!section) {
-    return next(httpError(404));
-  }
-  section.postsCount -= 1;
-  await section.save();
+  // const section = await Section.findOne({ slug: sectionSlug });
+  // if (!section) {
+  //   return next(httpError(404));
+  // }
+  // section.postsCount -= 1;
+  // await section.save();
 
-  const result = await cloudinary.uploader.destroy(post.slug);
-  console.log(result);
+  await cloudinary.uploader.destroy(post.slug);
 
   return res.status(200).json({
     message: "Post deleted successfully",

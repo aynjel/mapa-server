@@ -129,18 +129,22 @@ const update = async (req, res, next) => {
   const { title, description } = req.body;
   const { path: tempPath, originalname } = req.file;
 
-  // save to disk and  unlink the old file
-  if (tempPath) {
-    const filename = `${Date.now()}-${originalname}`;
-    const newPath = path.join("public", "posts", filename);
-    await fs.rename(tempPath, newPath);
-    const oldPath = path.join("public", "posts", post.slug);
-    await fs.unlink(oldPath);
-    post.content = filename;
-  }
-
   post.title = title;
   post.description = description;
+
+  if (tempPath) {
+    const slugOriginal = slugifyChars(originalname);
+    const filename = `${Date.now()}-${slugOriginal}`;
+    const newPath = path.join("public", "posts", filename);
+    await fs.rename(tempPath, newPath);
+    const { secure_url } = await cloudinary.uploader.upload(newPath, {
+      folder: "posts",
+      public_id: post.slug,
+    });
+
+    await fs.unlink(newPath);
+    post.content = secure_url;
+  }
 
   const updatedPost = await post.save();
   if (!updatedPost) {
@@ -154,21 +158,20 @@ const update = async (req, res, next) => {
 };
 
 const destroy = async (req, res, next) => {
-  const { sectionSlug, postSlug } = req.params;
+  const { postSlug } = req.params;
   const post = await Post.findOneAndDelete({ slug: postSlug });
   if (!post) {
     return next(httpError(404));
   }
 
-  const section = await Section.findOne({ slug: sectionSlug });
-  if (!section) {
-    return next(httpError(404));
-  }
-  section.postsCount -= 1;
-  await section.save();
+  // const section = await Section.findOne({ slug: sectionSlug });
+  // if (!section) {
+  //   return next(httpError(404));
+  // }
+  // section.postsCount -= 1;
+  // await section.save();
 
-  const result = await cloudinary.uploader.destroy(post.slug);
-  console.log(result);
+  await cloudinary.uploader.destroy(post.slug);
 
   return res.status(200).json({
     message: "Post deleted successfully",
