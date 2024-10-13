@@ -42,7 +42,8 @@ const create = async (req, res, next) => {
     return next(httpError(400, error.message));
   }
 
-  const { name, email, password, role = "student" } = req.body;
+  // const { name, email, password, role = "student" } = req.body;
+  const { name, email, password, role = "parent" } = req.body;
 
   // Registration conflict error
   const user = await User.findOne({ email });
@@ -100,6 +101,21 @@ const create = async (req, res, next) => {
       role: newUser.role,
       verificationToken: newUser.verificationToken,
     },
+  });
+};
+
+const getUserById = async (req, res, next) => {
+  const { userId } = req.params;
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    return next(httpError(404, "User not found"));
+  }
+
+  return res.status(200).json({
+    message: "User fetched successfully",
+    data: user,
   });
 };
 
@@ -241,6 +257,7 @@ export {
   getUsers,
   create,
   updateUserSubscription,
+  getUserById,
   updateAvatar,
   verifyEmail,
   resendVerifyEmail,

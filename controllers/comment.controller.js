@@ -47,7 +47,7 @@ const create = async (req, res, next) => {
   );
 
   return res.status(201).json({
-    message: "Post created successfully",
+    message: "Comment created successfully",
     data: comment,
   });
 };

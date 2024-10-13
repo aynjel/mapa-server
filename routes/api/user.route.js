@@ -2,6 +2,7 @@ import express from "express";
 import { ctrlWrapper } from "../../helpers/ctrlWrapper.js";
 import {
   getUsers,
+  getUserById,
   create,
   resendVerifyEmail,
   updateAvatar,
@@ -14,6 +15,8 @@ import { upload } from "../../middlewares/upload.js";
 const router = express.Router();
 
 router.get("/", ctrlWrapper(getUsers));
+
+router.get("/:userId", ctrlWrapper(getUserById));
 
 /* POST: // http://localhost:3000/api/users/create
 {
